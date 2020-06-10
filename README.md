@@ -13,10 +13,17 @@ bibtex
 ```
 
 ## Installing Dependencies
-For installing the required libraries, run the following command.
+In order to clone our repository and install all the required dependencies, follow these set of commands:
 ```
 pip install -r requirements.txt
 ```
+
+## Preparing Data
+In our paper, we evaluate the efficacy of our approach on a set of four publicly available datasets. Dowload any of these datasets and place them inside another folder in order to begin training.
+* Sprites
+* Cars3D
+* <a href="https://github.com/deepmind/3d-shapes">3DShapes</a>
+* <a href="https://github.com/deepmind/dsprites-dataset/">dSprites</a>
 
 ## Training
 
