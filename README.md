@@ -33,6 +33,16 @@ In order to begin training, run the following command.
 python train.py
 ```
 
+Customize training by varying the latent structure using the given set of flags.
+```
+--z_chunk_size             Dimension of each Latent Chunk
+--z_num_chunks             Number of Latent Chunks
+--c_chunk_size             Dimension of each Context Vector Chunk
+--c_num_chunks             Number of Context Vector Chunks
+--num_specified_chunks     Number of Specified Chunks in the Latent Space
+--num_unspecified_chunks   Number of Unspecified Chunks in the Latent Space
+```
+
 ## Evaluation
 
 For evaluation of the trained model using feature swapping, run the following command.
