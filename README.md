@@ -5,7 +5,7 @@ This repository contains code for the paper <a href=""><i>DisCont</i>: Self-Supe
 ## Abstract
 Disentangling the underlying feature attributes within an image with no prior supervision is a challenging task. Models that can disentangle attributes well provide greater interpretability and control. In this paper, we propose a self-supervised framework <i>DisCont</i> to disentangle multiple attributes by exploiting the structural inductive biases within images. Motivated by the recent surge in contrastive learning paradigms, our model bridges the gap between self-supervised contrastive learning algorithms and unsupervised disentanglement. We evaluate the efficacy of our approach, both qualitatively and quantitatively, on four benchmark datasets.
 
-<img src="figure-1.png" width="500" height="350">
+![DisCont Training](figure.jpg)
 
 In case you find any of this useful, consider citing:
 ```
