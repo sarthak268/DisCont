@@ -13,7 +13,7 @@ bibtex
 ```
 
 ## Installing Dependencies
-In order to clone our repository and install all the required dependencies, follow these set of commands:
+In order to clone our repository and install all the required dependencies, run the following command:
 ```
 pip install -r requirements.txt
 ```
@@ -27,8 +27,7 @@ In our paper, we evaluate the efficacy of our approach on a set of four publicly
 
 ## Training
 
-In order to begin training, run the following command.
-
+Begin training the <i>DisCont</i> model by running the following script.
 ```
 python train.py
 ```
