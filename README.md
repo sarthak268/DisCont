@@ -10,7 +10,10 @@ bibtex
 ```
 
 ## Installing Dependencies
-
+For installing the required libraries, run the following command.
+```
+pip install -r requirements.txt
+```
 
 ## Training
 
@@ -27,7 +30,7 @@ For evaluation of the trained model using feature swapping, run the following co
 python style_transfer.py
 ```
 
-In order to plot the latent space visualisations, run the following command.
+In order to plot the latent space visualizations, run the following command.
 ```
-python visualisation.py
+python latent_visualisation.py
 ```
