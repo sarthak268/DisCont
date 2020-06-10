@@ -20,8 +20,8 @@ pip install -r requirements.txt
 
 ## Preparing Data
 In our paper, we evaluate the efficacy of our approach on a set of four publicly available datasets. Download any of these datasets and place them inside another folder in order to begin training.
-* Sprites
-* Cars3D
+* <a href="http://www-personal.umich.edu/~reedscot/files/nips2015-analogy-data.tar.gz">Sprites</a>
+* <a href="http://www-personal.umich.edu/~reedscot/files/nips2015-analogy-data.tar.gz">Cars3D</a>
 * <a href="https://github.com/deepmind/3d-shapes">3DShapes</a>
 * <a href="https://github.com/deepmind/dsprites-dataset/">dSprites</a>
 
