@@ -9,7 +9,14 @@ Disentangling the underlying feature attributes within an image with no prior su
 
 In case you find any of this useful, consider citing:
 ```
-bibtex
+@misc{bhagat2020discont,
+    title={DisCont: Self-Supervised Visual Attribute Disentanglement using Context Vectors},
+    author={Sarthak Bhagat and Vishaal Udandarao and Shagun Uppal},
+    year={2020},
+    eprint={2006.05895},
+    archivePrefix={arXiv},
+    primaryClass={cs.CV}
+}
 ```
 
 ## Installing Dependencies
