@@ -1,6 +1,6 @@
 # DisCont: Self-Supervised Visual Attribute Disentanglement using Context Vectors
 
-This repository contains code for the paper <a href="https://arxiv.org/abs/2006.05895"><i>DisCont</i>: Self-Supervised Visual Attribute Disentanglement using Context Vectors</a>.
+This repository contains code for the paper <a href="https://arxiv.org/abs/2006.05895"><i>DisCont</i>: Self-Supervised Visual Attribute Disentanglement using Context Vectors</a>. Video available <a href="https://youtu.be/2gyLEPnTi1M">here</a>.
 
 ## Abstract
 Disentangling the underlying feature attributes within an image with no prior supervision is a challenging task. Models that can disentangle attributes well provide greater interpretability and control. In this paper, we propose a self-supervised framework <i>DisCont</i> to disentangle multiple attributes by exploiting the structural inductive biases within images. Motivated by the recent surge in contrastive learning paradigms, our model bridges the gap between self-supervised contrastive learning algorithms and unsupervised disentanglement. We evaluate the efficacy of our approach, both qualitatively and quantitatively, on four benchmark datasets.
