@@ -19,7 +19,7 @@ In case you find any of this useful, consider citing:
 ```
 
 ## Installing Dependencies
-In order to clone our repository and install all the required dependencies, run the following command:
+In order to install the required libraries, clone our repository and run the following command:
 ```
 pip install -r requirements.txt
 ```
