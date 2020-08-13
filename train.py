@@ -146,7 +146,7 @@ if __name__ == '__main__':
 			gen_loss = recon_loss + kl_loss
 
 			# center loss
-			cv, cv_full_view = cv_network(specified_latents)
+			cv, cv_full_view_ = cv_network(specified_latents)
 			transformed_chunks = torch.zeros(FLAGS.batch_size*FLAGS.z_num_chunks, FLAGS.c_num_chunks*FLAGS.c_chunk_size)
 
 			with torch.no_grad():
@@ -166,8 +166,11 @@ if __name__ == '__main__':
 			lab_list = [i for i in range(FLAGS.z_num_chunks)]
 			transformed_chunks_labels = lab_list*FLAGS.batch_size
 
-			center_loss = compute_center_loss(cv_full_view, transformed_chunks, transformed_chunks_labels, num_classes=FLAGS.z_num_chunks)
-			
+			if(cv_full_view.sum().data[0]==0):
+				center_loss = compute_center_loss(cv_full_view_, transformed_chunks, transformed_chunks_labels, num_classes=FLAGS.z_num_chunks)
+			else:
+				center_loss = compute_center_loss(cv_full_view, transformed_chunks, transformed_chunks_labels, num_classes=FLAGS.z_num_chunks)
+
 			# masked augmentation loss
 			aug_loss = 0
 			for i, val in enumerate(mask[:-1]):
@@ -178,11 +181,15 @@ if __name__ == '__main__':
 			# total losses, backprop and optimization
 			loss = gen_loss + center_loss + aug_loss
 
-			cv_full_view.retain_grad() # retain gradients of the CV for CV update
+			cv_full_view_.retain_grad() # retain gradients of the CV for CV update
 			center_loss.backward(retain_graph=True)
-			cv_gradient = cv_full_view.grad.clone() # ensure gradient is not None, save it before we detach from computation graph
-			cv_full_view = cv_full_view.detach() # detach CV var from computation graph so as to not interfere with other gradients
-			cv_full_view = cv_full_view - FLAGS.center_loss_lrate*cv_gradient # CV update
+			cv_gradient = cv_full_view_.grad.clone() # ensure gradient is not None, save it before we detach from computation graph
+			cv_full_view_ = cv_full_view_.detach() # detach CV var from computation graph so as to not interfere with other gradients
+			
+			if(cv_full_view.sum().data[0]==0):
+				cv_full_view = cv_full_view_ # first step CV update
+			else:
+				cv_full_view = cv_full_view - FLAGS.center_loss_lrate*cv_gradient # CV update
 
 			loss.backward()
 			combine_optimizer.step()
