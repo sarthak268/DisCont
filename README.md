@@ -64,6 +64,6 @@ python latent_visualization.py
 If you face any problem in running this code, you can contact us at {sarthak16189, vishaal16119, shagun16088}@iiitd.ac.in.
 
 ## License
-Copyright (c) 2020 Sarthak Bhagat, Vishaal Udandrao, Shagun Uppal.
+Copyright (c) 2020 Sarthak Bhagat, Vishaal Udandarao, Shagun Uppal.
 
 For license information, see LICENSE or http://mit-license.org
