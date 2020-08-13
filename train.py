@@ -161,7 +161,7 @@ if __name__ == '__main__':
 						transformed_temp_chunks.append(curr_tensor)
 				
 					curr_cv, curr_cv_full_view = cv_network(transformed_temp_chunks)
-					transformed_chunks[i*FLAGS.z_num_chunks : (i+1)*FLAGS.z_num_chunks]
+					transformed_chunks[i*FLAGS.z_num_chunks : (i+1)*FLAGS.z_num_chunks] = curr_cv_full_view
 
 			lab_list = [i for i in range(FLAGS.z_num_chunks)]
 			transformed_chunks_labels = lab_list*FLAGS.batch_size
