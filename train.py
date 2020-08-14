@@ -39,7 +39,7 @@ def compute_center_loss(centers, embeddings, labels, num_classes):
 	distmat.addmm_(1, -2, embeddings, centers.t())
 
 	classes = torch.arange(num_classes).long()
-	
+
 	if(FLAGS.cuda):
 		classes = classes.cuda()
 		distmat = distmat.cuda()
@@ -97,17 +97,17 @@ if __name__ == '__main__':
 		with open(FLAGS.log_file, 'w') as log:
 			log.write('Epoch\tIteration\tReconstruction_loss\tKL_divergence_loss\t')
 			log.write('Generator_loss\tDiscriminator_loss\tDiscriminator_accuracy\n')
-	
-	print('Loading Shapes3D Dataset...')
-	data_dir = './shapes_data/train/'
+
+	print('Loading Sprites Dataset...')
+	data_dir = '../../2D_Sprites/data/sprites_train/'
 	transform = transforms.Compose([transforms.Resize((64, 64)), transforms.ToTensor()])
 	dset = datasets.ImageFolder(data_dir, transform = transform)
 	sprites = torch.utils.data.DataLoader(dset, batch_size=FLAGS.batch_size, shuffle=True, drop_last=True)
 
 	X1 = torch.zeros(FLAGS.batch_size, FLAGS.num_channels, FLAGS.image_size, FLAGS.image_size)
 	X2 = torch.zeros(FLAGS.batch_size, FLAGS.num_channels, FLAGS.image_size, FLAGS.image_size)
-	
-	cv_full_view = Variable(torch.zeros((FLAGS.z_num_chunks, FLAGS.c_num_chunks*FLAGS.c_chunk_size)))
+
+	cv_full_view = Variable(torch.zeros((FLAGS.z_num_chunks, FLAGS.c_num_chunks*FLAGS.c_chunk_size)), requires_grad=True)
 
 	if FLAGS.cuda:
 		encoder.cuda()
@@ -122,10 +122,10 @@ if __name__ == '__main__':
 
 		for iteration in range(len(sprites)):
 			combine_optimizer.zero_grad()
-			
+
 			image_batch_1 = next(iter(sprites))[0]
 			X1.copy_(image_batch_1)
-			
+
 			# augmented_batch = augment_batch(X1)
 			augmented_batch, mask = get_augmentations_and_mask(X1)
 
@@ -134,66 +134,83 @@ if __name__ == '__main__':
 
 			augmented_encoder_outputs = encoder(augmented_batch)
 			aug_specified_latents, aug_unspecified_variational_latent, aug_mu, aug_logvar = augmented_encoder_outputs[0], augmented_encoder_outputs[1], augmented_encoder_outputs[2], augmented_encoder_outputs[3]
-			
+
 			# kl loss
+
 			kl_loss = FLAGS.kl_divergence_coef * (-0.5 * (torch.sum(1 + logvar - mu.pow(2) - logvar.exp())))
 			kl_loss /= FLAGS.batch_size * FLAGS.num_channels * FLAGS.image_size * FLAGS.image_size
-			
+
 			# reconstruction loss batch
+
 			image_batch_recon = decoder(specified_latents, unspecified_variational_latent)
 			recon_loss = mse_loss(image_batch_recon, X1)
 
 			gen_loss = recon_loss + kl_loss
 
 			# center loss
+
 			cv, cv_full_view_ = cv_network(specified_latents)
 			transformed_chunks = torch.zeros(FLAGS.batch_size*FLAGS.z_num_chunks, FLAGS.c_num_chunks*FLAGS.c_chunk_size)
 
 			with torch.no_grad():
 
 				for i in range(FLAGS.batch_size):
-					
+
 					transformed_temp_chunks = []
 
 					for j in range(FLAGS.z_num_chunks):
 						curr_tensor = specified_latents[j][i]
 						curr_tensor = curr_tensor.repeat(FLAGS.batch_size).view(FLAGS.batch_size, FLAGS.z_chunk_size)
 						transformed_temp_chunks.append(curr_tensor)
-				
+
 					curr_cv, curr_cv_full_view = cv_network(transformed_temp_chunks)
 					transformed_chunks[i*FLAGS.z_num_chunks : (i+1)*FLAGS.z_num_chunks] = curr_cv_full_view
 
 			lab_list = [i for i in range(FLAGS.z_num_chunks)]
 			transformed_chunks_labels = lab_list*FLAGS.batch_size
 
-			if(cv_full_view.sum().data[0]==0):
-				center_loss = compute_center_loss(cv_full_view_, transformed_chunks, transformed_chunks_labels, num_classes=FLAGS.z_num_chunks)
+			if(cv_full_view.sum().item()==0):
+				loc_cv_update = Variable(cv_full_view_.clone(), requires_grad=True)
 			else:
-				center_loss = compute_center_loss(cv_full_view, transformed_chunks, transformed_chunks_labels, num_classes=FLAGS.z_num_chunks)
+				loc_cv_update = Variable(cv_full_view.clone(), requires_grad=True)
+
+			center_loss = compute_center_loss(loc_cv_update, transformed_chunks, transformed_chunks_labels, num_classes=FLAGS.z_num_chunks)
 
 			# masked augmentation loss
+
 			aug_loss = 0
+
 			for i, val in enumerate(mask[:-1]):
 				val = 1-val
 				aug_loss+=val*mse_loss(aug_specified_latents[i], specified_latents[i])
+
 			aug_loss+=mse_loss(aug_unspecified_variational_latent, unspecified_variational_latent)
 
 			# total losses, backprop and optimization
+
 			loss = gen_loss + center_loss + aug_loss
 
-			cv_full_view_.retain_grad() # retain gradients of the CV for CV update
-			center_loss.backward(retain_graph=True)
-			cv_gradient = cv_full_view_.grad.clone() # ensure gradient is not None, save it before we detach from computation graph
-			cv_full_view_ = cv_full_view_.detach() # detach CV var from computation graph so as to not interfere with other gradients
-			
-			if(cv_full_view.sum().data[0]==0):
-				cv_full_view = cv_full_view_ # first step CV update
-			else:
+			if(cv_full_view.sum().item()!=0):
+				# SUBSEQUENT UPDATES AFTER FIRST UPDATE
+				loc_cv_update.retain_grad() # retain gradients of the CV for CV update
+				center_loss.backward(retain_graph=True)
+				cv_gradient = loc_cv_update.grad.clone() # ensure gradient is not None, save it before we detach from computation graph
+				cv_full_view_ = cv_full_view_.detach() # detach CV var from computation graph so as to not interfere with other gradients
+				cv_full_view = cv_full_view.detach() # detach CV var from computation graph so as to not interfere with other gradients
 				cv_full_view = cv_full_view - FLAGS.center_loss_lrate*cv_gradient # CV update
+				loc_cv_update = loc_cv_update.detach() # detach local CV var from computation graph so as to not interfere with other gradients (just in case issues occur)
+
+			else:
+				# FIRST UPDATE
+				cv_full_view = cv_full_view_
+				# detach all vars from computation graph so as to not interfere with other gradients
+				cv_full_view = cv_full_view.detach()
+				cv_full_view_ = cv_full_view_.detach()
+
 
 			loss.backward()
 			combine_optimizer.step()
-			
+
 			if (iteration + 1) % 50 == 0:
 				print('')
 				print('----------------------------------------------------------------------')
@@ -218,7 +235,7 @@ if __name__ == '__main__':
 
 		image_batch_1 = next(iter(sprites))[0]
 		X1.copy_(image_batch_1)
-		
+
 		latent = encoder(X1)
 		dec = decoder(latent[0], latent[1])
 
