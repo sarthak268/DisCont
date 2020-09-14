@@ -1,5 +1,7 @@
 # DisCont: Self-Supervised Visual Attribute Disentanglement using Context Vectors
 
+[![Paper](http://img.shields.io/badge/paper-arxiv.1001.2234-B31B1B.svg)](https://arxiv.org/abs/2006.05895) 
+
 This repository contains code for the paper <a href="https://arxiv.org/abs/2006.05895"><i>DisCont</i>: Self-Supervised Visual Attribute Disentanglement using Context Vectors</a>. Video available <a href="https://youtu.be/2gyLEPnTi1M">here</a>.
 
 ## Abstract
