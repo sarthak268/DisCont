@@ -9,7 +9,7 @@ Disentangling the underlying feature attributes within an image with no prior su
 
 ![DisCont Training](figure.jpg)
 
-In case you find any of this useful, consider citing:
+In case you find this work useful, consider citing:
 ```
 @article{Bhagat2020DisContSV,
   title={DisCont: Self-Supervised Visual Attribute Disentanglement using Context Vectors},
